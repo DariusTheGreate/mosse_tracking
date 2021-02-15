@@ -9,6 +9,6 @@ ADD_DEFINITIONS("-std=c++0x -O3")
 endif(NOT WIN32)
 
 include_directories(src) 
-FILE(GLOB_RECURSE sourcefiles "src/*.cpp")
+FILE(GLOB_RECURSE sourcefiles "src/*.cpp" "src/*.h")
 add_executable( mosse ${sourcefiles} )
 target_link_libraries( mosse ${OpenCV_LIBS})
