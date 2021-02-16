@@ -1,8 +1,12 @@
 #include <assert.h>
 #include <thread>
 #include <iostream>
-#include "roiSelector.h"
+
 #include <opencv2/opencv.hpp>
+
+#include "roiSelector.h"
+#include "tracker.h"
+
 
 void run()
 {
@@ -10,7 +14,7 @@ void run()
 	cv::VideoCapture capitan;
 	cap.open(0);
 	roiSelector box;
-
+	tracker track;
 	cv::VideoWriter save;
 	save.open("save_1.mp4", cv::VideoWriter::fourcc('M','P','4','2'), 25.0, cv::Size(480,360), true);
 	cv::Mat frame;
@@ -23,10 +27,11 @@ void run()
 		if(init)
 		{
 			roi = box.add(trackingWindow, frame);
-			init = false;
+			track.initTracker(roi, frame);
+			init = !init;
 		}
 		else 
-			std::cout << "captured\n"; 
+			std::cout << " \n"; 
 		cv::rectangle(frame, roi, cv::Scalar(255,255,0));
 		cv::imshow(trackingWindow, frame);
 		save << frame;
