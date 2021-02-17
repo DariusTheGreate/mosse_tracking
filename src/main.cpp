@@ -7,7 +7,6 @@
 #include "roiSelector.h"
 #include "tracker.h"
 
-
 void run()
 {
 	cv::VideoCapture cap;
@@ -31,7 +30,7 @@ void run()
 			init = !init;
 		}
 		else 
-			std::cout << " \n"; 
+			roi = track.update(frame);
 		cv::rectangle(frame, roi, cv::Scalar(255,255,0));
 		cv::imshow(trackingWindow, frame);
 		save << frame;

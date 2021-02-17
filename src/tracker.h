@@ -3,15 +3,15 @@
 #define _DEBUG_
 
 #include <opencv2/opencv.hpp> 
-#include <string>//”¡–¿“‹
 
 class tracker
 {
 public:
 	tracker();
-	void initTracker(cv::Rect i_roi, cv::Mat i_img);
 	virtual ~tracker();
 public:
+	void initTracker(cv::Rect i_roi, cv::Mat i_img);
+	cv::Rect update(const cv::Mat&);
 	void setInitImage(cv::Mat);
 	void setRoi(cv::Rect);
 protected:
@@ -19,12 +19,19 @@ protected:
 	cv::Mat convertToGray(const cv::Mat&);
 	void setGaussSigma(float i_s) { gauss_sigma = i_s; };
 	cv::Mat tracker::cropImage(cv::Rect roi, const cv::Mat& image);
-	cv::Mat FourierTransform(cv::Mat img);
+	cv::Mat FourierTransform(cv::Mat img, bool reverse_transform = false);
 	cv::Mat HanningProcessing(cv::Mat);
 	cv::Mat getHanningMat(cv::Mat);
 	cv::Mat complexMatrixMultiplication(cv::Mat, cv::Mat);
+	cv::Mat complexMatrixDivision(cv::Mat a, cv::Mat b);
 	cv::Mat conj(const cv::Mat& image);
+	cv::Mat randomTransform(cv::Mat);
+	void train(const cv::Mat&);
+	cv::Mat real(cv::Mat image);
+	cv::Mat imag(cv::Mat image);
+
 	float gauss_sigma = 100;
+	float epsilon = 0.125;
 	bool reverse_transform = false;
 private:
 	cv::Mat m_init_image;
@@ -34,5 +41,9 @@ private:
 	cv::Mat gaussMatrixFourier;
 	cv::Mat preprocessedMatrix;
 	cv::Mat FpreprocessedMatrix;
+	cv::Mat some1;
+	cv::Mat some2;
+	cv::Mat some3;
+
 };
 #endif
