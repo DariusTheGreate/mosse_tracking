@@ -3,15 +3,20 @@
 
 roiSelector::~roiSelector()
 {
-	delete m_data;
+	delete[] m_data;
 }
 
-roiSelector::roiSelector()
+roiSelector::roiSelector(int roiCounter)
 {
-	m_data = new roi_data();
-	memset(m_data, 0, sizeof(roi_data));
-	m_data->drawRoi = false;
-	m_data->endDraw = false;
+	m_roi_counter = roiCounter;
+	m_data = new roi_data*[roiCounter];
+	for(int i = 0; i < roiCounter; ++i)
+	{
+		m_data[i] = new roi_data();
+		memset(m_data[i], 0, sizeof(roi_data));
+		m_data[i]->endDraw = false;
+		m_data[i]->drawRoi = false;
+	}
 }
 
 void onMouseCallback(int event, int x, int y, int flags, void* param)
@@ -39,39 +44,48 @@ void onMouseCallback(int event, int x, int y, int flags, void* param)
 	}
 }
 
-cv::Rect roiSelector::add(const std::string windname, const cv::Mat& image)
+cv::Rect** roiSelector::add(const std::string windname, const cv::Mat& image)
 {
 	cv::Mat src_copy = image.clone();
 	int lx, ly, w, h;
 
-	while (!m_data->endDraw)
-	{
-		cv::setMouseCallback(windname, onMouseCallback, m_data);
-		
-		src_copy = image.clone();
-		cv::Rect temp;
-		
-		if (m_data->drawRoi)
-		{
-			lx = m_data->click_1.x > m_data->click_move.x ? m_data->click_move.x : m_data->click_1.x;
-			ly = m_data->click_1.y > m_data->click_move.y ? m_data->click_move.y : m_data->click_1.y;
-			
-			w = std::abs(m_data->click_move.x - m_data->click_1.x);
-			h = std::abs(m_data->click_move.y - m_data->click_1.y);
-			
-			temp = cv::Rect(lx, ly, w, h);
-			cv::rectangle(src_copy, temp, cv::Scalar(255, 255, 255));
-		}
-		cv::imshow(windname, src_copy);
-		cv::waitKey(20);
-	}
+	cv::Rect** res_rois = new cv::Rect*[m_roi_counter];
 
-	lx = m_data->click_1.x > m_data->click_2.x ? m_data->click_2.x : m_data->click_1.x;
-	ly = m_data->click_1.y > m_data->click_2.y ? m_data->click_2.y : m_data->click_1.y;
-	w = std::abs(m_data->click_2.x - m_data->click_1.x);
-	h = std::abs(m_data->click_2.y - m_data->click_1.y);
-	cv::Rect res = cv::Rect(lx, ly, w, h);
-	return res;
+	for (int roi_num = 0; roi_num < m_roi_counter; roi_num++)
+	{
+		roi_data* current_roi = m_data[roi_num];
+		while (!current_roi->endDraw)
+		{
+
+			cv::setMouseCallback(windname, onMouseCallback, current_roi);
+
+			src_copy = image.clone();
+			cv::Rect temp;
+
+			if (current_roi->drawRoi)
+			{
+				lx = current_roi->click_1.x > current_roi->click_move.x ? current_roi->click_move.x : current_roi->click_1.x;
+				ly = current_roi->click_1.y > current_roi->click_move.y ? current_roi->click_move.y : current_roi->click_1.y;
+
+				w = std::abs(current_roi->click_move.x - current_roi->click_1.x);
+				h = std::abs(current_roi->click_move.y - current_roi->click_1.y);
+
+				temp = cv::Rect(lx, ly, w, h);
+				cv::rectangle(src_copy, temp, cv::Scalar(255, 255, 255));
+			}
+			cv::imshow(windname, src_copy);
+			cv::waitKey(20);
+
+
+			lx = current_roi->click_1.x > current_roi->click_2.x ? current_roi->click_2.x : current_roi->click_1.x;
+			ly = current_roi->click_1.y > current_roi->click_2.y ? current_roi->click_2.y : current_roi->click_1.y;
+			w = std::abs(current_roi->click_2.x - current_roi->click_1.x);
+			h = std::abs(current_roi->click_2.y - current_roi->click_1.y);
+			cv::Rect* res = new cv::Rect(lx, ly, w, h);
+			res_rois[roi_num] = res;
+		}
+	}
+	return res_rois;
 }
 
 void roiSelector::exit()
@@ -81,6 +95,9 @@ void roiSelector::exit()
 
 void roiSelector::clearData()
 {
-	m_data->drawRoi = false;
-	m_data->endDraw = false;
+	for (int i = 0; i < m_roi_counter; ++i)
+	{
+		m_data[i]->endDraw = false;
+		m_data[i]->drawRoi = false;
+	}
 }

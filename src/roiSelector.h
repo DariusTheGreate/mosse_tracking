@@ -13,14 +13,15 @@ void onMouseCallback(int event, int x, int y, int flags, void* param);
 
 class roiSelector {
 public:
-	roiSelector();
+	roiSelector(int roiCounter);
 	virtual ~roiSelector();
 public:
-	cv::Rect add(const std::string windname, const cv::Mat& image);
+	cv::Rect** add(const std::string windname, const cv::Mat& image);
 	void exit();
 	void clearData();
 private:
-	roi_data* m_data;
+	roi_data** m_data;
+	int m_roi_counter = 0;
 };
 
 #endif
